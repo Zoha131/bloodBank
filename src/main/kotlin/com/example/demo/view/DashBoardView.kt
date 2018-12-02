@@ -2,13 +2,16 @@ package com.example.demo.view
 
 import com.example.demo.app.Styles
 import com.jfoenix.controls.JFXButton
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
+import javafx.scene.control.SelectionMode
 import javafx.scene.effect.BlurType
 import javafx.scene.effect.DropShadow
 import javafx.scene.effect.Shadow
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -16,6 +19,8 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import tornadofx.*
+import java.time.LocalDate
+import java.time.Period
 
 class DashBoardView : View("My View") {
 
@@ -23,6 +28,16 @@ class DashBoardView : View("My View") {
     var myMenuTop by singleAssign<StackPane>()
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
+
+    //todo me: change this placehodler data
+    private val persons = listOf(
+            Person(1,"Samantha Stuart",LocalDate.of(1981,12,4)),
+            Person(2,"Tom Marks",LocalDate.of(2001,1,23)),
+            Person(3,"Stuart Gills",LocalDate.of(1989,5,23)),
+            Person(3,"Nicole Williams",LocalDate.of(1998,8,11))
+    ).observable()
+
+    private  val listData = persons.map { it.name }.observable()
 
 
     init {
@@ -63,15 +78,101 @@ class DashBoardView : View("My View") {
             prefWidth = 200.00
 
             style {
-                backgroundColor = multi(Styles.dividerColor)
+                backgroundColor = multi(Styles.iconColor)
+                fontFamily = "Arial Rounded MT Bold"
+            }
+
+            hbox {
+
+                alignment = Pos.CENTER_LEFT
+
+                imageview("logo/blood_bag.png")
+                label("Blood Bags") {
+                    style {
+                        fontSize = 17.px
+                        fontWeight = FontWeight.BOLD
+                        textFill = Styles.primaryDarkColor
+                    }
+                }
+            }
+
+            listview(persons){
+
+                prefHeight = 250.00
+
+                style{
+                    borderColor = multi(CssBox(Styles.iconColor, Styles.iconColor, Styles.iconColor, Styles.iconColor))
+                    backgroundColor = multi(Styles.iconColor)
+                }
+
+                cellFormat {
+                    graphic = vbox {
+
+                        paddingLeft = 24.00
+
+                        label(it.name){
+                            style{
+                                fontSize = 14.px
+                                fontWeight = FontWeight.BOLD
+                            }
+                        }
+                        label(it.birthday.toString()){
+                            style{
+                                fontSize = 13.px
+                                fontWeight = FontWeight.MEDIUM
+                            }
+                        }
+                    }
+                }
+            }
+
+            hbox {
+
+                alignment = Pos.CENTER_LEFT
+
+                vboxConstraints {
+                    marginTop = 50.00
+                }
+
+                imageview("logo/user_request.png")
+                label("User Requests") {
+                    style {
+                        fontSize = 17.px
+                        fontWeight = FontWeight.BOLD
+                        textFill = Styles.primaryDarkColor
+                    }
+                }
+            }
+
+            listview(persons){
+
+                prefHeight = 250.00
+
+                style{
+                    borderColor = multi(CssBox(Styles.iconColor, Styles.iconColor, Styles.iconColor, Styles.iconColor))
+                    backgroundColor = multi(Styles.iconColor)
+                }
+
+                cellFormat {
+                    graphic = vbox {
+                        paddingLeft = 24.00
+
+                        label(it.name){
+                            style{
+                                fontSize = 14.px
+                                fontWeight = FontWeight.BOLD
+                            }
+                        }
+                        label(it.birthday.toString()){
+                            style{
+                                fontSize = 13.px
+                                fontWeight = FontWeight.MEDIUM
+                            }
+                        }
+                    }
+                }
             }
         }
-
-        /*left = stackpane {
-            useMaxHeight = true
-            paddingRight = 50.00
-            this +=myListMenu
-        }*/
 
         left = myListMenu
 
@@ -94,21 +195,20 @@ class DashBoardView : View("My View") {
 
                 stackpaneConstraints {
                     alignment = Pos.TOP_LEFT
-                    marginTop = 30.00
+                    marginTop = 20.00
                 }
             }
-
 
             piechart("Doners") {
 
 
-                maxHeight = 300.00
+                maxHeight = 250.00
                 maxWidth = 300.00
 
                 stackpaneConstraints {
                     alignment = Pos.TOP_LEFT
                     marginLeft = 30.00
-                    marginTop = 100.00
+                    marginTop = 70.00
                 }
 
                 style {
@@ -131,13 +231,13 @@ class DashBoardView : View("My View") {
 
             barchart("Blood Bags", CategoryAxis(), NumberAxis()) {
 
-                maxHeight = 300.00
+                maxHeight = 250.00
                 maxWidth = 300.00
 
                 stackpaneConstraints {
                     alignment = Pos.TOP_RIGHT
                     marginRight = 30.00
-                    marginTop = 100.00
+                    marginTop = 70.00
                 }
 
                 style {
@@ -157,6 +257,55 @@ class DashBoardView : View("My View") {
                     data("B-", 16.0)
                     data("AB+", 15.0)
                     data("AB-", 16.0)
+                }
+            }
+
+
+            vbox {
+                maxHeight = 250.00
+                useMaxWidth = true
+                alignment = Pos.BOTTOM_CENTER
+
+                stackpaneConstraints {
+                    alignment = Pos.BOTTOM_CENTER
+                    margin = Insets(30.00)
+                }
+
+                style {
+                    val myRadius = 5
+                    val myBWidth = 2
+                    backgroundColor = multi(Styles.iconColor)
+                    borderColor = multi(CssBox(Styles.dividerColor, Styles.dividerColor, Styles.dividerColor, Styles.dividerColor))
+                    borderRadius = multi(CssBox(myRadius.px,myRadius.px, myRadius.px, myRadius.px))
+                    backgroundRadius = multi(CssBox(myRadius.px,myRadius.px, myRadius.px, myRadius.px))
+                    borderWidth = multi(CssBox(myBWidth.px,myBWidth.px, myBWidth.px, myBWidth.px))
+                }
+
+                label("Live Donors") {
+                    style {
+                        fontSize = 20.px
+                        fontWeight = FontWeight.BOLD
+                    }
+
+                    vboxConstraints {
+                        marginBottom = 10.00
+                    }
+                }
+
+                tableview(persons) {
+
+                    maxHeight = 200.00
+
+
+                    vboxConstraints {
+                        hgrow = Priority.ALWAYS
+                    }
+
+
+                    readonlyColumn("ID",Person::id)
+                    readonlyColumn("Name", Person::name)
+                    readonlyColumn("Birthday", Person::birthday)
+                    readonlyColumn("Age",Person::age)
                 }
             }
         }
@@ -324,4 +473,8 @@ class DashBoardView : View("My View") {
         }
 
     }
+}
+
+data class Person(val id: Int, val name: String, val birthday: LocalDate) {
+    val age: Int get() = Period.between(birthday, LocalDate.now()).years
 }
