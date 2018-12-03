@@ -86,6 +86,10 @@ class DashBoardView : View("My View") {
 
                 alignment = Pos.CENTER_LEFT
 
+                vboxConstraints {
+                    marginTop = 20.00
+                }
+
                 imageview("logo/blood_bag.png")
                 label("Blood Bags") {
                     style {
@@ -131,7 +135,7 @@ class DashBoardView : View("My View") {
                 alignment = Pos.CENTER_LEFT
 
                 vboxConstraints {
-                    marginTop = 50.00
+                    marginTop = 30.00
                 }
 
                 imageview("logo/user_request.png")
@@ -199,7 +203,7 @@ class DashBoardView : View("My View") {
                 }
             }
 
-            piechart("Doners") {
+            piechart("Donors") {
 
 
                 maxHeight = 250.00
@@ -227,6 +231,8 @@ class DashBoardView : View("My View") {
                 data("B-", 16.0)
                 data("AB+", 15.0)
                 data("AB-", 16.0)
+                data("O+", 17.0)
+                data("O-", 16.0)
             }
 
             barchart("Blood Bags", CategoryAxis(), NumberAxis()) {
@@ -257,6 +263,8 @@ class DashBoardView : View("My View") {
                     data("B-", 16.0)
                     data("AB+", 15.0)
                     data("AB-", 16.0)
+                    data("O+", 17.0)
+                    data("O-", 16.0)
                 }
             }
 

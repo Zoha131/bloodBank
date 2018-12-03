@@ -23,6 +23,7 @@ class Styles : Stylesheet() {
         val iconColor = c("#FFFFFF")
         val dividerColor = c("#BDBDBD")
         val windowColor = c("#e6e6e6")
+        val tensionColor = c("#FF9800")
 
         val majha  = importStylesheet("/css/listmenu.css")
     }

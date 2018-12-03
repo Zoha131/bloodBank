@@ -124,7 +124,7 @@ class MainView : View("Hello TornadoFX") {
 
                     field {
                         this += JFXTextField().apply {
-                            promptText = "User Name"
+                            promptText = "Username"
                             isLabelFloat = true
 
                             focusColor = myFocusColer
@@ -234,7 +234,7 @@ class MainView : View("Hello TornadoFX") {
 
                     field {
                         this += JFXTextField().apply {
-                            promptText = "User Name"
+                            promptText = "Username"
                             isLabelFloat = true
                             focusColor = myFocusColer
                         }
