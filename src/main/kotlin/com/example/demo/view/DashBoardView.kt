@@ -16,11 +16,14 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
+import javafx.stage.StageStyle
 import tornadofx.*
 
 class DashBoardView : View("My View") {
 
     var myListMenu by singleAssign<ListMenu>()
+    var myListItem1 by singleAssign<ListMenuItem>()
+
     var myMenuTop by singleAssign<StackPane>()
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
@@ -67,15 +70,19 @@ class DashBoardView : View("My View") {
             item(text = "Dashboard", graphic = imageview("logo/speedometer.png")) {
 
                 whenSelected {
-
+                    replaceWith<DashBoardView>()
                 }
-
-                activeItem = this
-
-                minWidth = 80.00
             }
-            item(text = "Users", graphic = imageview("logo/community.png") )
-            item(text = "Settings", graphic =  imageview("logo/settings.png") )
+            item(text = "Users", graphic = imageview("logo/community.png") ) {
+                whenSelected {
+                    replaceWith<UserView>()
+                }
+            }
+            item(text = "Settings", graphic =  imageview("logo/settings.png") ) {
+                whenSelected {
+                    replaceWith<SettingView>()
+                }
+            }
 
 
 
@@ -407,6 +414,10 @@ class DashBoardView : View("My View") {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        replaceWith<StaffView>()
+                    }
                 }
 
                 this += JFXButton("Staff Category").apply {
@@ -416,6 +427,10 @@ class DashBoardView : View("My View") {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        replaceWith<StaffCategoryView>()
+                    }
                 }
 
                 this += JFXButton("Donor").apply {
@@ -424,6 +439,10 @@ class DashBoardView : View("My View") {
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
+                    }
+
+                    setOnAction {
+                        replaceWith<DonorView>()
                     }
                 }
 
@@ -435,9 +454,13 @@ class DashBoardView : View("My View") {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        replaceWith<RecieverView>()
+                    }
                 }
 
-                this += JFXButton("MedicalCondition").apply {
+                this += JFXButton("Medication").apply {
                     icon = imageview("logo/square.png")
 
 
@@ -445,15 +468,22 @@ class DashBoardView : View("My View") {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        replaceWith<MedicationView>()
+                    }
                 }
 
                 this += JFXButton("Medical Condition").apply {
                     icon = imageview("logo/square.png")
 
-
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
+                    }
+
+                    setOnAction {
+                        replaceWith<MConditionView>()
                     }
                 }
             }
@@ -471,6 +501,11 @@ class DashBoardView : View("My View") {
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
+                    }
+
+                    setOnAction {
+                        close()
+                        find<MainView>().openWindow(stageStyle = StageStyle.TRANSPARENT)
                     }
                 }
 

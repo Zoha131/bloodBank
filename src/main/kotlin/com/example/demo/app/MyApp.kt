@@ -13,7 +13,7 @@ class MyApp: App(MainView::class, Styles::class){
     }
 
     override fun start(stage: Stage) {
-        //stage.initStyle(StageStyle.TRANSPARENT)
+        stage.initStyle(StageStyle.TRANSPARENT)
         super.start(stage)
     }
 }

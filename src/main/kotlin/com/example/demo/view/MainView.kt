@@ -156,6 +156,11 @@ class MainView : View("Hello TornadoFX") {
 
                             fontWeight = FontWeight.BOLD
                         }
+
+                        setOnAction {
+                            close()
+                            find<DashBoardView>().openWindow()
+                        }
                     }
                 }
             }

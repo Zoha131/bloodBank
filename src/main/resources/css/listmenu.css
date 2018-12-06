@@ -45,11 +45,11 @@
     -fx-fill: #ddd;
 }
 
-.list-menu.blue .list-item:active {
+/*.list-menu.blue .list-item:active {
     -fx-background-color: rgba(255,141,141,.1);
     -fx-border-width: 0 0 0 3px;
     -fx-border-color: #F44336;
-}
+}*/
 
 .list-menu.blue .list-item:active:hover .graphic {
     -fx-fill: #fff;

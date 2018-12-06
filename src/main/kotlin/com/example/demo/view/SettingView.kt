@@ -48,15 +48,19 @@ class SettingView : View("My View") {
             item(text = "Dashboard", graphic = imageview("logo/speedometer.png")) {
 
                 whenSelected {
-
+                    replaceWith<DashBoardView>()
                 }
-
-                activeItem = this
-
-                minWidth = 80.00
             }
-            item(text = "Users", graphic = imageview("logo/community.png"))
-            item(text = "Settings", graphic = imageview("logo/settings.png"))
+            item(text = "Users", graphic = imageview("logo/community.png") ) {
+                whenSelected {
+                    replaceWith<UserView>()
+                }
+            }
+            item(text = "Settings", graphic =  imageview("logo/settings.png") ) {
+                whenSelected {
+                    replaceWith<SettingView>()
+                }
+            }
 
 
         }
