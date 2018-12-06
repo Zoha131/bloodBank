@@ -1,15 +1,11 @@
 package com.example.demo.view
 
 import com.example.demo.model.Status
-import com.example.demo.model.User
+import com.example.demo.model.UserDemo
 import com.example.demo.app.Styles
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXRadioButton
 import com.jfoenix.controls.JFXTextField
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.value.ObservableValue
-import javafx.collections.ObservableList
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
@@ -34,8 +30,8 @@ class UserView : View("My View") {
 
     //todo me: change this placehodler data
     private val users = listOf(
-            User(10001,"Baker Zahir", "eeee", "baker@diu.edu.bd", "ComeOnBaker", Status.Pending),
-            User(10002,"Abir Hasan", "zoha131", "abir@diu.edu.bd", "ComeOnBaker", Status.Pending)
+            UserDemo(10001,"Baker Zahir", "eeee", "baker@diu.edu.bd", "ComeOnBaker", Status.Pending),
+            UserDemo(10002,"Abir Hasan", "zoha131", "abir@diu.edu.bd", "ComeOnBaker", Status.Pending)
     ).observable()
 
 
@@ -50,7 +46,7 @@ class UserView : View("My View") {
             effect = DropShadow(50.0, Color.GRAY)
 
 
-            item(text = "Dashboard", graphic = imageview("speedometer.png")) {
+            item(text = "Dashboard", graphic = imageview("logo/speedometer.png")) {
 
                 whenSelected {
 
@@ -60,8 +56,8 @@ class UserView : View("My View") {
 
                 minWidth = 80.00
             }
-            item(text = "Users", graphic = imageview("community.png"))
-            item(text = "Settings", graphic = imageview("settings.png"))
+            item(text = "Users", graphic = imageview("logo/community.png"))
+            item(text = "Settings", graphic = imageview("logo/settings.png"))
 
 
         }
@@ -162,10 +158,10 @@ class UserView : View("My View") {
                     marginTop = 150.00
                 }
 
-                readonlyColumn("Name", User::name)
-                readonlyColumn("Username", User::userName)
-                readonlyColumn("Email", User::email)
-                readonlyColumn("Account Status", User::status)
+                readonlyColumn("Name", UserDemo::name)
+                readonlyColumn("Username", UserDemo::userName)
+                readonlyColumn("Email", UserDemo::email)
+                readonlyColumn("Account Status", UserDemo::status)
                 rowExpander(expandOnDoubleClick = true) {
 
                     stackpane {
@@ -304,7 +300,7 @@ class UserView : View("My View") {
                 }
 
                 openMenuBtn = JFXButton().apply {
-                    icon = imageview("menu.png")
+                    icon = imageview("logo/menu.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -321,7 +317,7 @@ class UserView : View("My View") {
                 }
 
                 closeMenuBtn = JFXButton().apply {
-                    icon = imageview("back.png")
+                    icon = imageview("logo/back.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -361,7 +357,7 @@ class UserView : View("My View") {
                 paddingRight = 30.00
 
                 this += JFXButton().apply {
-                    icon = imageview("logout.png")
+                    icon = imageview("logo/logout.png")
 
 
                     style {
@@ -370,7 +366,7 @@ class UserView : View("My View") {
                     }
                 }
 
-                label("User Name") {
+                label("UserDemo Name") {
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
@@ -384,7 +380,7 @@ class UserView : View("My View") {
                         marginLeft = 10.00
                     }
 
-                    fill = ImagePattern(Image("user.jpg"))
+                    fill = ImagePattern(Image("logo/user.jpg"))
                 }
             }
 

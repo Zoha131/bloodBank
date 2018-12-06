@@ -6,7 +6,7 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
 
-class MyApp: App(DashBoardView::class, Styles::class){
+class MyApp: App(MainView::class, Styles::class){
 
     init {
         reloadStylesheetsOnFocus()

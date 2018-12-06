@@ -1,26 +1,22 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.model.BloodBagNotification
+import com.example.demo.model.Donor
+import com.example.demo.model.User
 import com.jfoenix.controls.JFXButton
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
-import javafx.scene.control.SelectionMode
-import javafx.scene.effect.BlurType
 import javafx.scene.effect.DropShadow
-import javafx.scene.effect.Shadow
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
 import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import tornadofx.*
-import java.time.LocalDate
-import java.time.Period
 
 class DashBoardView : View("My View") {
 
@@ -30,14 +26,31 @@ class DashBoardView : View("My View") {
     var closeMenuBtn by singleAssign<JFXButton>()
 
     //todo me: change this placehodler data
-    private val persons = listOf(
-            Person(1,"Samantha Stuart",LocalDate.of(1981,12,4)),
-            Person(2,"Tom Marks",LocalDate.of(2001,1,23)),
-            Person(3,"Stuart Gills",LocalDate.of(1989,5,23)),
-            Person(3,"Nicole Williams",LocalDate.of(1998,8,11))
+    private val userRequest = listOf(
+            User(),
+            User(),
+            User(),
+            User(),
+            User(),
+            User()
     ).observable()
-
-    private  val listData = persons.map { it.name }.observable()
+    private val bloodNotification = listOf(
+            BloodBagNotification(),
+            BloodBagNotification(),
+            BloodBagNotification(),
+            BloodBagNotification(),
+            BloodBagNotification(),
+            BloodBagNotification()
+    ).observable()
+    private val donorList = listOf(
+            Donor(),
+            Donor(),
+            Donor(),
+            Donor(),
+            Donor(),
+            Donor(),
+            Donor()
+    ).observable()
 
 
     init {
@@ -51,7 +64,7 @@ class DashBoardView : View("My View") {
             effect = DropShadow(50.0, Color.GRAY)
 
 
-            item(text = "Dashboard", graphic = imageview("speedometer.png")) {
+            item(text = "Dashboard", graphic = imageview("logo/speedometer.png")) {
 
                 whenSelected {
 
@@ -61,8 +74,8 @@ class DashBoardView : View("My View") {
 
                 minWidth = 80.00
             }
-            item(text = "Users", graphic = imageview("community.png") )
-            item(text = "Settings", graphic =  imageview("settings.png") )
+            item(text = "Users", graphic = imageview("logo/community.png") )
+            item(text = "Settings", graphic =  imageview("logo/settings.png") )
 
 
 
@@ -100,7 +113,7 @@ class DashBoardView : View("My View") {
                 }
             }
 
-            listview(persons){
+            listview(bloodNotification){
 
                 prefHeight = 250.00
 
@@ -114,13 +127,13 @@ class DashBoardView : View("My View") {
 
                         paddingLeft = 24.00
 
-                        label(it.name){
+                        label(it.bloodGroup){
                             style{
                                 fontSize = 14.px
                                 fontWeight = FontWeight.BOLD
                             }
                         }
-                        label(it.birthday.toString()){
+                        label(it.stock.toString()){
                             style{
                                 fontSize = 13.px
                                 fontWeight = FontWeight.MEDIUM
@@ -148,7 +161,7 @@ class DashBoardView : View("My View") {
                 }
             }
 
-            listview(persons){
+            listview(userRequest){
 
                 prefHeight = 250.00
 
@@ -161,13 +174,13 @@ class DashBoardView : View("My View") {
                     graphic = vbox {
                         paddingLeft = 24.00
 
-                        label(it.name){
+                        label(it.uName){
                             style{
                                 fontSize = 14.px
                                 fontWeight = FontWeight.BOLD
                             }
                         }
-                        label(it.birthday.toString()){
+                        label(it.email){
                             style{
                                 fontSize = 13.px
                                 fontWeight = FontWeight.MEDIUM
@@ -300,7 +313,7 @@ class DashBoardView : View("My View") {
                     }
                 }
 
-                tableview(persons) {
+                tableview(donorList) {
 
                     maxHeight = 200.00
 
@@ -310,10 +323,11 @@ class DashBoardView : View("My View") {
                     }
 
 
-                    readonlyColumn("ID",Person::id)
-                    readonlyColumn("Name", Person::name)
-                    readonlyColumn("Birthday", Person::birthday)
-                    readonlyColumn("Age",Person::age)
+                    readonlyColumn("ID",Donor::dnr_id)
+                    readonlyColumn("Name", Donor::fName)
+                    readonlyColumn("Blood Group", Donor::bloodGroup)
+                    readonlyColumn("Phone",Donor::mobile)
+                    readonlyColumn("Email",Donor::email)
                 }
             }
         }
@@ -339,7 +353,7 @@ class DashBoardView : View("My View") {
                 }
 
                 openMenuBtn = JFXButton().apply {
-                    icon = imageview("menu.png")
+                    icon = imageview("logo/menu.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -356,7 +370,7 @@ class DashBoardView : View("My View") {
                 }
 
                 closeMenuBtn = JFXButton().apply {
-                    icon = imageview("back.png")
+                    icon = imageview("logo/back.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -387,7 +401,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Staff").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
                     style {
                         textFill = Styles.iconColor
@@ -396,7 +410,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Staff Category").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
                     style {
                         textFill = Styles.iconColor
@@ -405,7 +419,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Donor").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
                     style {
                         textFill = Styles.iconColor
@@ -414,7 +428,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Receiver").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
 
                     style {
@@ -424,7 +438,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Medication").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
 
                     style {
@@ -434,7 +448,7 @@ class DashBoardView : View("My View") {
                 }
 
                 this += JFXButton("Medical Condition").apply {
-                    icon = imageview("square.png")
+                    icon = imageview("logo/square.png")
 
 
                     style {
@@ -451,7 +465,7 @@ class DashBoardView : View("My View") {
                 paddingRight = 30.00
 
                 this += JFXButton().apply {
-                    icon = imageview("logout.png")
+                    icon = imageview("logo/logout.png")
 
 
                     style {
@@ -460,7 +474,7 @@ class DashBoardView : View("My View") {
                     }
                 }
 
-                label("User Name") {
+                label("UserDemo Name") {
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
@@ -474,15 +488,11 @@ class DashBoardView : View("My View") {
                         marginLeft = 10.00
                     }
 
-                    fill = ImagePattern(Image("user.jpg"))
+                    fill = ImagePattern(Image("logo/user.jpg"))
                 }
             }
 
         }
 
     }
-}
-
-data class Person(val id: Int, val name: String, val birthday: LocalDate) {
-    val age: Int get() = Period.between(birthday, LocalDate.now()).years
 }

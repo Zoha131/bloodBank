@@ -1,19 +1,11 @@
 package com.example.demo.view
 
 import com.example.demo.model.Status
-import com.example.demo.model.User
+import com.example.demo.model.UserDemo
 import com.example.demo.app.Styles
 import com.jfoenix.controls.JFXButton
-import com.jfoenix.controls.JFXPasswordField
-import com.jfoenix.controls.JFXRadioButton
-import com.jfoenix.controls.JFXTextField
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
-import javafx.collections.ObservableList
-import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
 import javafx.scene.effect.DropShadow
@@ -24,7 +16,6 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import tornadofx.*
-import java.io.ByteArrayInputStream
 import java.time.LocalDate
 
 class SettingView : View("My View") {
@@ -38,8 +29,8 @@ class SettingView : View("My View") {
 
     //todo me: change this placehodler data
     private val users = listOf(
-            User(10001,"Baker Zahir", "eeee", "baker@diu.edu.bd", "ComeOnBaker", Status.Pending),
-            User(10002,"Abir Hasan", "zoha131", "abir@diu.edu.bd", "ComeOnBaker", Status.Pending)
+            UserDemo(10001,"Baker Zahir", "eeee", "baker@diu.edu.bd", "ComeOnBaker", Status.Pending),
+            UserDemo(10002,"Abir Hasan", "zoha131", "abir@diu.edu.bd", "ComeOnBaker", Status.Pending)
     ).observable()
 
 
@@ -54,7 +45,7 @@ class SettingView : View("My View") {
             effect = DropShadow(50.0, Color.GRAY)
 
 
-            item(text = "Dashboard", graphic = imageview("speedometer.png")) {
+            item(text = "Dashboard", graphic = imageview("logo/speedometer.png")) {
 
                 whenSelected {
 
@@ -64,8 +55,8 @@ class SettingView : View("My View") {
 
                 minWidth = 80.00
             }
-            item(text = "Users", graphic = imageview("community.png"))
-            item(text = "Settings", graphic = imageview("settings.png"))
+            item(text = "Users", graphic = imageview("logo/community.png"))
+            item(text = "Settings", graphic = imageview("logo/settings.png"))
 
 
         }
@@ -176,7 +167,7 @@ class SettingView : View("My View") {
                 height = 130.00
                 width = 130.00
 
-                fill = ImagePattern(Image("user.jpg"))
+                fill = ImagePattern(Image("logo/user.jpg"))
 
                 stackpaneConstraints {
                     alignment = Pos.TOP_RIGHT
@@ -228,7 +219,7 @@ class SettingView : View("My View") {
                 }
 
                 openMenuBtn = JFXButton().apply {
-                    icon = imageview("menu.png")
+                    icon = imageview("logo/menu.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -245,7 +236,7 @@ class SettingView : View("My View") {
                 }
 
                 closeMenuBtn = JFXButton().apply {
-                    icon = imageview("back.png")
+                    icon = imageview("logo/back.png")
 
                     style {
                         backgroundColor = multi(Styles.primaryColor)
@@ -285,7 +276,7 @@ class SettingView : View("My View") {
                 paddingRight = 30.00
 
                 this += JFXButton().apply {
-                    icon = imageview("logout.png")
+                    icon = imageview("logo/logout.png")
 
 
                     style {
@@ -294,7 +285,7 @@ class SettingView : View("My View") {
                     }
                 }
 
-                label("User Name") {
+                label("UserDemo Name") {
                     style {
                         textFill = Styles.iconColor
                         fontWeight = FontWeight.BOLD
@@ -308,7 +299,7 @@ class SettingView : View("My View") {
                         marginLeft = 10.00
                     }
 
-                    fill = ImagePattern(Image("user.jpg"))
+                    fill = ImagePattern(Image("logo/user.jpg"))
                 }
             }
 
