@@ -1,8 +1,8 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
-import com.example.demo.model.Staff
-import com.example.demo.model.StaffCategory
+import com.example.demo.model.Donor
+import com.example.demo.model.Medication
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXComboBox
 import com.jfoenix.controls.JFXDatePicker
@@ -19,7 +19,7 @@ import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import tornadofx.*
 
-class StaffCategoryView : View("My View") {
+class MedicationView : View("My View") {
 
     var myListMenu by singleAssign<ListMenu>()
     var myMenuTop by singleAssign<StackPane>()
@@ -27,27 +27,25 @@ class StaffCategoryView : View("My View") {
     var closeMenuBtn by singleAssign<JFXButton>()
 
     //todo me: change this placehodler data
-    private val staffCategoryList = listOf(
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory(),
-            StaffCategory()
+    private val medicationList = listOf(
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication(),
+            Medication()
     ).observable()
-    private val staffCategory = StaffCategory()
+    private val medication = Medication()
 
 
     init {
@@ -90,7 +88,7 @@ class StaffCategoryView : View("My View") {
                 backgroundColor = multi(Styles.windowColor)
             }
 
-            label("Staff Category") {
+            label("MedicalCondition") {
                 style {
                     fontSize = 18.px
                     backgroundColor = multi(Styles.primaryColor)
@@ -115,44 +113,17 @@ class StaffCategoryView : View("My View") {
                 stackpaneConstraints {
                     alignment = Pos.TOP_LEFT
 
-                    marginTop = 120.00
+                    marginTop = 100.00
+                    marginLeft = 50.00
                 }
 
-                this += JFXButton("Delete Category").apply{
-                    buttonType = JFXButton.ButtonType.RAISED
-
-                    hboxConstraints {
-                        marginLeft = 30.00
-                    }
-
-                    style {
-                        backgroundColor = multi(c("#E30000"))
-                        textFill = Color.WHITE
-
-                        fontWeight = FontWeight.BOLD
-                    }
-                }
-
-                this += JFXButton("New Category").apply{
-                    buttonType = JFXButton.ButtonType.RAISED
-
-                    hboxConstraints {
-                        marginLeft = 30.00
-                    }
-
-                    style {
-                        backgroundColor = multi(Styles.positiveColor)
-                        textFill = Color.WHITE
-
-                        fontWeight = FontWeight.BOLD
-                    }
-                }
+                label("Search Person for MedicalCondition: ") {  }
 
                 this += JFXTextField().apply {
                     promptText = "Search"
 
                     hboxConstraints {
-                        marginLeft = 30.00
+                        marginLeft = 20.00
                         focusColor = Styles.accentColor
                     }
                 }
@@ -167,9 +138,50 @@ class StaffCategoryView : View("My View") {
                 }
             }
 
-            tableview(staffCategoryList) {
+            hbox {
 
-                maxHeight = 400.00
+                alignment = Pos.TOP_LEFT
+
+                stackpaneConstraints {
+                    alignment = Pos.TOP_LEFT
+
+                    marginTop = 160.00
+                }
+
+                this += JFXButton("Delete MedicalCondition").apply{
+                    buttonType = JFXButton.ButtonType.RAISED
+
+                    hboxConstraints {
+                        marginLeft = 70.00
+                    }
+
+                    style {
+                        backgroundColor = multi(c("#E30000"))
+                        textFill = Color.WHITE
+
+                        fontWeight = FontWeight.BOLD
+                    }
+                }
+
+                this += JFXButton("New MedicalCondition").apply{
+                    buttonType = JFXButton.ButtonType.RAISED
+
+                    hboxConstraints {
+                        marginLeft = 60.00
+                    }
+
+                    style {
+                        backgroundColor = multi(Styles.positiveColor)
+                        textFill = Color.WHITE
+
+                        fontWeight = FontWeight.BOLD
+                    }
+                }
+            }
+
+            tableview(medicationList) {
+
+                maxHeight = 350.00
                 maxWidth = 400.00
 
 
@@ -180,18 +192,16 @@ class StaffCategoryView : View("My View") {
                 }
 
 
-                readonlyColumn("ID", StaffCategory::cat_id)
-                readonlyColumn("Job Title", StaffCategory::jobTitle)
-                readonlyColumn("Education", StaffCategory::eduReq)
-                readonlyColumn("Experience", StaffCategory::expReq)
-                readonlyColumn("Salary", StaffCategory::baseSalary)
+                readonlyColumn("ID", Medication::med_id)
+                readonlyColumn("Name", Medication::medNamed)
+                readonlyColumn("Description", Medication::medDesc)
+                readonlyColumn("Guide", Medication::medGuide)
             }
 
             scrollpane {
                 maxWidth = 400.00
                 useMaxHeight = true
                 paddingAll = 30.00
-
 
                 hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
 
@@ -217,48 +227,41 @@ class StaffCategoryView : View("My View") {
                         backgroundColor = multi(Color.WHITE)
                     }
 
-                    fieldset("Staff Category") {
+                    fieldset("Medical Condition") {
 
-                        field("Job Title:") {
+                        field("Name:") {
                             this += JFXTextField().apply {
 
                                 focusColor = Styles.accentColor
 
-                                text = staffCategory.jobTitle
+                                text = medication.medNamed
                             }
                             paddingBottom = 30.00
                             paddingTop = 40.00
                         }
 
-                        field("Education:") {
+                        field("Description:") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staffCategory.eduReq
+                                text = medication.medDesc
+
                             }
-
                             paddingBottom = 30.00
+
                         }
 
-                        field("Experience:") {
+                        field("Guide:") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staffCategory.expReq
-                        }
+                                text = medication.medGuide
 
-                            paddingBottom = 30.00
-                        }
-
-                        field("Salary:") {
-                            this += JFXTextField().apply {
-                                focusColor = Styles.accentColor
-
-                                text = staffCategory.baseSalary.toString()
                             }
-
                             paddingBottom = 30.00
+
                         }
+
                     }
 
                     this += JFXButton("Save").apply{

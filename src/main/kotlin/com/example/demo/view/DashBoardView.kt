@@ -437,7 +437,7 @@ class DashBoardView : View("My View") {
                     }
                 }
 
-                this += JFXButton("Medication").apply {
+                this += JFXButton("MedicalCondition").apply {
                     icon = imageview("logo/square.png")
 
 
