@@ -336,7 +336,7 @@ class DonorView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = donor.address.house
+                                text = donor.house
                             }
                             paddingBottom = 30.00
                         }
@@ -345,7 +345,7 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.address.street
+                                text = donor.street
                             }
 
                             paddingBottom = 30.00
@@ -353,7 +353,7 @@ class DonorView : View("My View") {
 
                         field("Area:") {
                             this+= JFXTextField().apply {
-                                text = donor.address.area
+                                text = donor.area
                                 focusColor = Styles.accentColor
                             }
 
@@ -364,7 +364,7 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.address.zipCod
+                                text = donor.zipCod
                             }
 
                             paddingBottom = 30.00
@@ -374,7 +374,7 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.address.city
+                                text = donor.city
                             }
 
                             paddingBottom = 30.00
@@ -384,7 +384,7 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.address.country
+                                text = donor.country
                             }
 
                             paddingBottom = 30.00

@@ -1,11 +1,15 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.controller.StaffViewController
 import com.example.demo.model.Staff
 import com.example.demo.model.StaffCategory
+import com.example.demo.viewmodel.StaffViewModel
 import com.jfoenix.controls.*
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.Alert
 import javafx.scene.control.ScrollPane
 import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
@@ -16,36 +20,24 @@ import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.lang.Exception
 
-class StaffView :  View("My View") {
+class StaffView : View("My View") {
 
     var myListMenu by singleAssign<ListMenu>()
     var myMenuTop by singleAssign<StackPane>()
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
 
-    //todo me: change this placehodler data
-    private val staffList = listOf(
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff(),
-            Staff()
-    ).observable()
-    private val staff = Staff()
+    val staffViewController: StaffViewController by inject()
+    val staffModel: StaffViewModel by inject()
 
+    private val staffList = staffViewController.getStaffSet()
+    private val staffListObservable = ArrayList(staffList).observable()
+    private val searchString = SimpleStringProperty()
+
+    private var z_save = false
+    private var z_delete = false
 
     init {
 
@@ -64,17 +56,16 @@ class StaffView :  View("My View") {
                     replaceWith<DashBoardView>()
                 }
             }
-            item(text = "Users", graphic = imageview("logo/community.png") ) {
+            item(text = "Users", graphic = imageview("logo/community.png")) {
                 whenSelected {
                     replaceWith<UserView>()
                 }
             }
-            item(text = "Settings", graphic =  imageview("logo/settings.png") ) {
+            item(text = "Settings", graphic = imageview("logo/settings.png")) {
                 whenSelected {
                     replaceWith<SettingView>()
                 }
             }
-
 
 
         }
@@ -95,7 +86,7 @@ class StaffView :  View("My View") {
                 style {
                     fontSize = 18.px
                     backgroundColor = multi(Styles.primaryColor)
-                    backgroundRadius = multi(CssBox(0.px,5.px, 5.px, 0.px))
+                    backgroundRadius = multi(CssBox(0.px, 5.px, 5.px, 0.px))
                     paddingAll = 5
                     fontWeight = FontWeight.BOLD
                     textFill = Styles.iconColor
@@ -119,7 +110,7 @@ class StaffView :  View("My View") {
                     marginTop = 120.00
                 }
 
-                this += JFXButton("Delete Staff").apply{
+                this += JFXButton("Delete Staff").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
@@ -132,9 +123,29 @@ class StaffView :  View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+
+                        try {
+                            if(z_delete){
+
+                                val staff = staffModel.item
+                                staffViewController.deleteStaff(staff)
+
+                                staffListObservable.remove(staff)
+                                staffList.remove(staff)
+
+                                alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been deleted successfully!")
+                            } else {
+                                alert(Alert.AlertType.INFORMATION, "Error!", "Please Select a data to delete")
+                            }
+                        }catch (ex: Exception){
+                            alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong! ${ex.message}")
+                        }
+                    }
                 }
 
-                this += JFXButton("New Staff").apply{
+                this += JFXButton("New Staff").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
@@ -147,10 +158,21 @@ class StaffView :  View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        z_save = true
+                        z_delete = false
+
+                        staffModel.rebind {
+                            item = Staff()
+                        }
+                    }
                 }
 
                 this += JFXTextField().apply {
                     promptText = "Search"
+
+                    searchString.bindBidirectional(textProperty())
 
                     hboxConstraints {
                         marginLeft = 40.00
@@ -165,10 +187,23 @@ class StaffView :  View("My View") {
 
                         fill = ImagePattern(Image("logo/search.png"))
                     }
+
+                    setOnAction {
+
+                        z_delete = false
+                        z_save = false
+
+                        val list = staffList.filter { ss -> searchString.value.isEmpty() || "${ss.fName} ${ss.lName}".contains(searchString.value, true) }
+
+                        println(staffList.size.toString())
+                        println(list.size.toString())
+                        staffListObservable.clear()
+                        staffListObservable.addAll(list)
+                    }
                 }
             }
 
-            tableview(staffList) {
+            tableview(staffListObservable) {
 
                 maxHeight = 400.00
                 maxWidth = 400.00
@@ -181,11 +216,15 @@ class StaffView :  View("My View") {
                 }
 
 
-                readonlyColumn("ID",Staff::staff_id)
                 readonlyColumn("Name", Staff::fName)
                 readonlyColumn("Joining Date", Staff::joinDate)
-                readonlyColumn("Sex",Staff::sex)
-                readonlyColumn("Email",Staff::email)
+                readonlyColumn("Sex", Staff::sex)
+                readonlyColumn("Email", Staff::email)
+
+                bindSelected(staffModel).apply {
+                    z_save = false
+                    z_delete = true
+                }
             }
 
             scrollpane {
@@ -223,8 +262,13 @@ class StaffView :  View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = staff.fName
+                                bind(staffModel.fname)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
+
                             paddingBottom = 30.00
                         }
 
@@ -232,15 +276,24 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.lName
+                                bind(staffModel.lName)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Date of Birth:") {
-                            this+= JFXDatePicker().apply {
-                                value = staff.dob
+                            this += JFXDatePicker().apply {
+
+                                bind(staffModel.dob)
+
+                                validator {
+                                    if (it.toString().isBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -250,7 +303,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.mobile
+                                bind(staffModel.mobile)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -262,8 +319,13 @@ class StaffView :  View("My View") {
 
                                 items.add("Male")
                                 items.add("Female")
+                                items.add("Other")
 
-                                value = staff.sex
+                                bind(staffModel.sex)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -273,7 +335,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.email
+                                bind(staffModel.email)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -287,7 +353,12 @@ class StaffView :  View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = staff.address.house
+                                bind(staffModel.house)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
+
                             }
                             paddingBottom = 30.00
                         }
@@ -296,16 +367,25 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.address.street
+                                bind(staffModel.street)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Area:") {
-                            this+= JFXTextField().apply {
-                                text = staff.address.area
+                            this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
+
+                                bind(staffModel.area)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -315,7 +395,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.address.zipCod
+                                bind(staffModel.zipCod)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -325,7 +409,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.address.city
+                                bind(staffModel.city)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -335,7 +423,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.address.country
+                                bind(staffModel.country)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -345,15 +437,21 @@ class StaffView :  View("My View") {
                     fieldset("Staff") {
 
                         field("Category:") {
-                            this += JFXComboBox<StaffCategory>().apply {
+                            this += JFXComboBox<Number>().apply {
                                 focusColor = Styles.accentColor
 
-                                val cat = StaffCategory(1)
+                                items.add(100001)
+                                items.add(100002)
+                                items.add(100003)
+                                items.add(100004)
+                                items.add(100005)
 
-                                items.add(cat)
-                                items.add(StaffCategory(2))
 
-                                value = cat
+                                bind(staffModel.cat_id)
+
+                                validator {
+                                    if (it.toString().isBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -364,7 +462,11 @@ class StaffView :  View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = staff.eduBack
+                                bind(staffModel.eduBack)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
                             paddingBottom = 30.00
                         }
@@ -373,7 +475,11 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.expDetails
+                                bind(staffModel.expDetails)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -383,42 +489,100 @@ class StaffView :  View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = staff.refDetails
+                                bind(staffModel.refDetails)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Joining Date:") {
-                            this+= JFXDatePicker().apply {
-                                value = staff.joinDate
+                            this += JFXDatePicker().apply {
+                                bind(staffModel.joinDate)
+
+                                validator {
+                                    if (it.toString().isBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Resigning Date:") {
-                            this+= JFXDatePicker().apply {
-                                value = staff.resignDate
+                            this += JFXDatePicker().apply {
+                                bind(staffModel.resignDate)
                             }
 
                             paddingBottom = 30.00
                         }
                     }
 
-                    this += JFXButton("Save").apply{
-                        buttonType = JFXButton.ButtonType.RAISED
+                    hbox {
 
-                        style {
-                            backgroundColor = multi(Styles.positiveColor)
-                            textFill = Color.WHITE
+                        alignment = Pos.CENTER
 
-                            fontWeight = FontWeight.BOLD
+                        this += JFXButton("Save").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(staffModel.valid.and(staffModel.dirty))
+
+                            style {
+                                backgroundColor = multi(Styles.positiveColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                staffModel.commit()
+                                val staff = staffModel.item
+
+                                try {
+                                    if(!z_save){
+                                        staffViewController.updateStaff(staff)
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been saved successfully!")
+                                    } else {
+                                        val newStaff = staffViewController.newStaff(staff)
+
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "New Staff has been created successfully!")
+
+                                        staffList.add(newStaff)
+                                        staffListObservable.add(newStaff)
+
+                                    }
+                                }catch (ex: Exception){
+                                    alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong!")
+                                }
+                            }
+                        }
+
+                        this += JFXButton("Reset").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(staffModel.dirty)
+
+                            hboxConstraints {
+                                marginLeft = 50.00
+                            }
+
+                            style {
+                                backgroundColor = multi(Styles.tensionColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                staffModel.rollback()
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
 
         top = hbox {
@@ -610,6 +774,5 @@ class StaffView :  View("My View") {
             }
 
         }
-
     }
 }

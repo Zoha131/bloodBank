@@ -286,7 +286,7 @@ class RecieverView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = reciever.address.house
+                                text = reciever.house
                             }
                             paddingBottom = 30.00
                         }
@@ -295,7 +295,7 @@ class RecieverView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = reciever.address.street
+                                text = reciever.street
                             }
 
                             paddingBottom = 30.00
@@ -303,7 +303,7 @@ class RecieverView : View("My View") {
 
                         field("Area:") {
                             this+= JFXTextField().apply {
-                                text = reciever.address.area
+                                text = reciever.area
                                 focusColor = Styles.accentColor
                             }
 
@@ -314,7 +314,7 @@ class RecieverView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = reciever.address.zipCod
+                                text = reciever.zipCod
                             }
 
                             paddingBottom = 30.00
@@ -324,7 +324,7 @@ class RecieverView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = reciever.address.city
+                                text = reciever.city
                             }
 
                             paddingBottom = 30.00
@@ -334,7 +334,7 @@ class RecieverView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = reciever.address.country
+                                text = reciever.country
                             }
 
                             paddingBottom = 30.00

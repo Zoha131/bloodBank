@@ -9,27 +9,25 @@ import java.io.FileInputStream
 import java.time.LocalDate
 import java.util.*
 
-open class Person(val per_id:Int = -1) {
+open class Person(var per_id:Int = -1, add_id: Int =- 1): Address(add_id) {
 
-    var address: Address = Address()
-
-    val fNameProperty = SimpleStringProperty(this, "Nowroz", "Nowroz")
+    val fNameProperty = SimpleStringProperty(this, "Nowroz", "")
     var fName by fNameProperty
 
-    val lNameProperty = SimpleStringProperty(this, "Islam", "Islam")
+    val lNameProperty = SimpleStringProperty(this, "Islam", "")
     var lName by lNameProperty
 
     val dobProperty = SimpleObjectProperty<LocalDate>(this, "DOB", LocalDate.now())
     var dob by dobProperty
 
-    val mobileProperty = SimpleStringProperty(this, "Mobile", "0174785658")
+    val mobileProperty = SimpleStringProperty(this, "Mobile", "")
     var mobile by mobileProperty
 
-    val sexProperty = SimpleStringProperty(this, "Sex", "Male")
+    val sexProperty = SimpleStringProperty(this, "Sex", "")
     var sex by sexProperty
 
     var pic: ByteArray = IOUtils.toByteArray(FileInputStream(File("src\\main\\resources\\logo\\user.jpg")))
 
-    val emailProperty = SimpleStringProperty(this, "Email", "nowroz@diu.edu.bd")
+    val emailProperty = SimpleStringProperty(this, "Email", "")
     var email by emailProperty
 }
