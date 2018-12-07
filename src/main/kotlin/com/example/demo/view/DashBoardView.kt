@@ -1,8 +1,9 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
-import com.example.demo.model.BloodBagNotification
+import com.example.demo.controller.DashboardController
 import com.example.demo.model.Donor
+import com.example.demo.model.LiveDonor
 import com.example.demo.model.User
 import com.jfoenix.controls.JFXButton
 import javafx.geometry.Insets
@@ -22,11 +23,12 @@ import tornadofx.*
 class DashBoardView : View("My View") {
 
     var myListMenu by singleAssign<ListMenu>()
-    var myListItem1 by singleAssign<ListMenuItem>()
 
     var myMenuTop by singleAssign<StackPane>()
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
+
+    val dashboardController: DashboardController by inject()
 
     //todo me: change this placehodler data
     private val userRequest = listOf(
@@ -37,23 +39,13 @@ class DashBoardView : View("My View") {
             User(),
             User()
     ).observable()
-    private val bloodNotification = listOf(
-            BloodBagNotification(),
-            BloodBagNotification(),
-            BloodBagNotification(),
-            BloodBagNotification(),
-            BloodBagNotification(),
-            BloodBagNotification()
-    ).observable()
-    private val donorList = listOf(
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor()
-    ).observable()
+
+    private val livedonorList = dashboardController.getLiveDonorList().observable()
+    private val bloodBagData = dashboardController.getBloodBagCount()
+    private val donorData = dashboardController.getDonorCount()
+
+    private val bloodBagNotification = dashboardController.getBloodBagNotification()
+    private val pedingUserNotification = dashboardController.getPedingUserNotification()
 
 
     init {
@@ -87,6 +79,7 @@ class DashBoardView : View("My View") {
 
 
         }
+        dashboardController.getLiveDonorList()
     }
 
     override val root = borderpane {
@@ -120,7 +113,7 @@ class DashBoardView : View("My View") {
                 }
             }
 
-            listview(bloodNotification){
+            listview(bloodBagNotification.observable()){
 
                 prefHeight = 250.00
 
@@ -134,16 +127,31 @@ class DashBoardView : View("My View") {
 
                         paddingLeft = 24.00
 
-                        label(it.bloodGroup){
+                        style {
+                            when{
+
+                                it.count < 4 ->{
+                                    backgroundColor = multi(Styles.primaryColor)
+                                }
+                                it.count < 6 ->{
+                                    backgroundColor = multi(Styles.tensionColor)
+                                }
+                                it.count < 11 ->{
+                                    backgroundColor = multi(Styles.blueTension)
+                                }
+
+                            }
+
+                            val radius = 3
+                            backgroundRadius = multi(CssBox(radius.px,radius.px,radius.px,radius.px))
+                        }
+
+                        label("${it.bloodGroup} remaining ${it.count}"){
+                            alignment = Pos.CENTER
                             style{
                                 fontSize = 14.px
                                 fontWeight = FontWeight.BOLD
-                            }
-                        }
-                        label(it.stock.toString()){
-                            style{
-                                fontSize = 13.px
-                                fontWeight = FontWeight.MEDIUM
+                                textFill = Styles.iconColor
                             }
                         }
                     }
@@ -168,7 +176,7 @@ class DashBoardView : View("My View") {
                 }
             }
 
-            listview(userRequest){
+            listview(pedingUserNotification.observable()){
 
                 prefHeight = 250.00
 
@@ -181,15 +189,17 @@ class DashBoardView : View("My View") {
                     graphic = vbox {
                         paddingLeft = 24.00
 
-                        label(it.uName){
+                        label(it.userName){
                             style{
                                 fontSize = 14.px
+                                paddingAll = 5.00
                                 fontWeight = FontWeight.BOLD
                             }
                         }
                         label(it.email){
                             style{
-                                fontSize = 13.px
+                                fontSize = 9.px
+                                paddingAll = 3.00
                                 fontWeight = FontWeight.MEDIUM
                             }
                         }
@@ -245,14 +255,9 @@ class DashBoardView : View("My View") {
                     borderWidth = multi(CssBox(myBWidth.px,myBWidth.px, myBWidth.px, myBWidth.px))
                 }
 
-                data("A+", 17.0)
-                data("A-", 16.0)
-                data("B+", 17.0)
-                data("B-", 16.0)
-                data("AB+", 15.0)
-                data("AB-", 16.0)
-                data("O+", 17.0)
-                data("O-", 16.0)
+                for (bloodBagDatum in donorData) {
+                    data(bloodBagDatum.bloodGroup, bloodBagDatum.count.toDouble())
+                }
             }
 
             barchart("Blood Bags", CategoryAxis(), NumberAxis()) {
@@ -277,14 +282,10 @@ class DashBoardView : View("My View") {
                 }
 
                 series("Available Bags") {
-                    data("A+", 17.0)
-                    data("A-", 16.0)
-                    data("B+", 17.0)
-                    data("B-", 16.0)
-                    data("AB+", 15.0)
-                    data("AB-", 16.0)
-                    data("O+", 17.0)
-                    data("O-", 16.0)
+
+                    for (bloodBagDatum in bloodBagData) {
+                        data(bloodBagDatum.bloodGroup, bloodBagDatum.count)
+                    }
                 }
             }
 
@@ -320,21 +321,21 @@ class DashBoardView : View("My View") {
                     }
                 }
 
-                tableview(donorList) {
+                tableview(livedonorList) {
 
                     maxHeight = 200.00
-
 
                     vboxConstraints {
                         hgrow = Priority.ALWAYS
                     }
 
-
-                    readonlyColumn("ID",Donor::dnr_id)
-                    readonlyColumn("Name", Donor::fName)
-                    readonlyColumn("Blood Group", Donor::bloodGroup)
-                    readonlyColumn("Phone",Donor::mobile)
-                    readonlyColumn("Email",Donor::email)
+                    //readonlyColumn("ID",LiveDonor::id)
+                    readonlyColumn("First Name", LiveDonor::fname)
+                    readonlyColumn("Last Name", LiveDonor::lname)
+                    readonlyColumn("Donation Date", LiveDonor::don_data)
+                    readonlyColumn("Blood Group", LiveDonor::bloodGroup)
+                    readonlyColumn("Phone",LiveDonor::phone)
+                    readonlyColumn("Email",LiveDonor::email)
                 }
             }
         }

@@ -25,6 +25,7 @@ class Styles : Stylesheet() {
         val windowColor = c("#e6e6e6")
         val tensionColor = c("#FF9800")
         val positiveColor = c("#388E3C")
+        val blueTension = c("#1976d2")
 
         val majha  = importStylesheet("/css/listmenu.css")
     }
