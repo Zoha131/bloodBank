@@ -11,9 +11,9 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tornadofx.*
 
-class DashboardController: Controller() {
+class DashboardController : Controller() {
 
-    fun getLiveDonorList():ArrayList<LiveDonor> {
+    fun getLiveDonorList(): ArrayList<LiveDonor> {
 
         val dataList = ArrayList<LiveDonor>()
 
@@ -46,35 +46,35 @@ class DashboardController: Controller() {
         return dataList
     }
 
-    fun getBloodBagCount():ArrayList<ChartData> {
+    fun getBloodBagCount(): ArrayList<ChartData> {
 
         val dataList = ArrayList<ChartData>()
 
+
         transaction {
-            transaction {
-                TransactionManager
-                        .current()
-                        .exec(""" SELECT rs.bld_group, count(rs.bld_group) AS count FROM
+            TransactionManager
+                    .current()
+                    .exec(""" SELECT rs.bld_group, count(rs.bld_group) AS count FROM
                                 ( SELECT bld_group FROM donation INNER JOIN donor ON
                                 donation.dnr_id = donor.dnr_id WHERE
                                 datediff(curdate(),don_date) < 42) AS rs GROUP BY rs.bld_group;""") { rs ->
 
-                            val result = arrayListOf<Pair<String, String>>()
-                            while (rs.next()) {
-                                val chartData = ChartData(rs.getString("bld_group") , rs.getInt("count"))
+                        val result = arrayListOf<Pair<String, String>>()
+                        while (rs.next()) {
+                            val chartData = ChartData(rs.getString("bld_group"), rs.getInt("count"))
 
-                                dataList.add(chartData)
-                            }
-
-                            result
+                            dataList.add(chartData)
                         }
-            }
+
+                        result
+                    }
         }
+
 
         return dataList
     }
 
-    fun getDonorCount():ArrayList<ChartData> {
+    fun getDonorCount(): ArrayList<ChartData> {
 
         val dataList = ArrayList<ChartData>()
 
@@ -85,7 +85,7 @@ class DashboardController: Controller() {
 
                         val result = arrayListOf<Pair<String, String>>()
                         while (rs.next()) {
-                            val chartData = ChartData(rs.getString("bld_group") , rs.getInt("count"))
+                            val chartData = ChartData(rs.getString("bld_group"), rs.getInt("count"))
 
                             dataList.add(chartData)
                         }
@@ -97,7 +97,7 @@ class DashboardController: Controller() {
         return dataList
     }
 
-    fun getBloodBagNotification():ArrayList<ChartData> {
+    fun getBloodBagNotification(): ArrayList<ChartData> {
 
         val dataList = ArrayList<ChartData>()
 
@@ -111,7 +111,7 @@ class DashboardController: Controller() {
 
                         val result = arrayListOf<Pair<String, String>>()
                         while (rs.next()) {
-                            val chartData = ChartData(rs.getString("bld_group") , rs.getInt("count"))
+                            val chartData = ChartData(rs.getString("bld_group"), rs.getInt("count"))
 
                             dataList.add(chartData)
                         }
@@ -123,7 +123,7 @@ class DashboardController: Controller() {
         return dataList
     }
 
-    fun getPedingUserNotification():ArrayList<PendingUser> {
+    fun getPedingUserNotification(): ArrayList<PendingUser> {
 
         val dataList = ArrayList<PendingUser>()
 
@@ -136,7 +136,7 @@ class DashboardController: Controller() {
 
                         val result = arrayListOf<Pair<String, String>>()
                         while (rs.next()) {
-                            val chartData = PendingUser(rs.getString("u_name") , rs.getString("email"))
+                            val chartData = PendingUser(rs.getString("u_name"), rs.getString("email"))
 
                             dataList.add(chartData)
                         }
