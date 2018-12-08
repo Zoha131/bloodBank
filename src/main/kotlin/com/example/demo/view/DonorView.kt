@@ -187,6 +187,19 @@ class DonorView : View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        val donor = viewmodel.item
+
+                        if(donor != null && donor.dnr_id > 1){
+                            controller.newDonation(donor)
+                            alert(Alert.AlertType.INFORMATION, "Confirmation!", "Donation has been saved successfully!")
+                        } else {
+
+                            alert(Alert.AlertType.INFORMATION, "Error!", "Select a donor to create donation!")
+
+                        }
+                    }
                 }
             }
 

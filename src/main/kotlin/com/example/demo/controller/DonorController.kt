@@ -2,8 +2,10 @@ package com.example.demo.controller
 
 import com.example.demo.Utility.JodaConverters
 import com.example.demo.database.AddressTable
+import com.example.demo.database.DonationTable
 import com.example.demo.database.PersonTable
 import com.example.demo.database.DonorTable
+import com.example.demo.model.Donation
 import com.example.demo.model.Donor
 import org.apache.commons.io.IOUtils
 import org.jetbrains.exposed.sql.*
@@ -82,6 +84,20 @@ class DonorController: Controller(){
                 it[zip_code] = donor.zipCod
                 it[city] = donor.city
                 it[country] = donor.country
+            }
+        }
+    }
+
+    fun newDonation(donor: Donor) {
+
+        transaction {
+
+            val don_id = DonationTable.insert {
+                it[DonationTable.dispatched] = "No"
+                it[DonationTable.dnr_id] = donor.dnr_id
+                it[DonationTable.don_date] = DateTime.now()
+                it[DonationTable.expiry_date] = DateTime.now().plus(40)
+
             }
         }
     }
