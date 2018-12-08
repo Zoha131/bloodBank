@@ -1,11 +1,10 @@
 package com.example.demo.model
 
-import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-class StaffCategory(val cat_id: Int = -1){
+class StaffCategory(var cat_id: Int = -1){
 
     val jobTitleProperty = SimpleStringProperty(this, "jobTitle", "Data Operator")
     var jobTitle by jobTitleProperty

@@ -5,8 +5,6 @@ import tornadofx.*
 
 class User(val u_id:Int = -1, p_id:Int = -2): Person(p_id) {
 
-
-
     val uNameProperty = SimpleStringProperty(this, "uName", "nowroz131")
     var uName by uNameProperty
 

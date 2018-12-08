@@ -1,14 +1,18 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.controller.DonorController
 import com.example.demo.model.Donor
 import com.example.demo.model.Staff
+import com.example.demo.viewmodel.DonorViewModel
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXComboBox
 import com.jfoenix.controls.JFXDatePicker
 import com.jfoenix.controls.JFXTextField
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.Alert
 import javafx.scene.control.ScrollPane
 import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
@@ -19,6 +23,7 @@ import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.lang.Exception
 
 class DonorView : View("My View") {
 
@@ -27,27 +32,15 @@ class DonorView : View("My View") {
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
 
-    //todo me: change this placehodler data
-    private val donorList = listOf(
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor(),
-            Donor()
-    ).observable()
-    private val donor = Donor()
+    val controller: DonorController by inject()
+    val viewmodel: DonorViewModel by inject()
+
+    private val dataList = controller.getDataList()
+    private val dataListObservable = ArrayList(dataList).observable()
+    private val searchString = SimpleStringProperty()
+
+    private var z_save = false
+    private var z_delete = false
 
 
     init {
@@ -122,7 +115,7 @@ class DonorView : View("My View") {
                     marginTop = 100.00
                 }
 
-                this += JFXButton("Delete Donor").apply{
+                this += JFXButton("Delete Donor").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
@@ -135,9 +128,29 @@ class DonorView : View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+
+                        try {
+                            if(z_delete){
+
+                                val staff = viewmodel.item
+                                controller.deleteItem(staff)
+
+                                dataListObservable.remove(staff)
+                                dataList.remove(staff)
+
+                                alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been deleted successfully!")
+                            } else {
+                                alert(Alert.AlertType.INFORMATION, "Error!", "Please Select a data to delete")
+                            }
+                        }catch (ex: Exception){
+                            alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong! ${ex.message}")
+                        }
+                    }
                 }
 
-                this += JFXButton("New Donor").apply{
+                this += JFXButton("New Donor").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
@@ -149,6 +162,15 @@ class DonorView : View("My View") {
                         textFill = Color.WHITE
 
                         fontWeight = FontWeight.BOLD
+                    }
+
+                    setOnAction {
+                        z_save = true
+                        z_delete = false
+
+                        viewmodel.rebind {
+                            item = Donor()
+                        }
                     }
                 }
 
@@ -182,8 +204,10 @@ class DonorView : View("My View") {
                 this += JFXTextField().apply {
                     promptText = "Search"
 
+                    searchString.bindBidirectional(textProperty())
+
                     hboxConstraints {
-                        marginLeft = 20.00
+                        marginLeft = 40.00
                         focusColor = Styles.accentColor
                     }
                 }
@@ -195,10 +219,23 @@ class DonorView : View("My View") {
 
                         fill = ImagePattern(Image("logo/search.png"))
                     }
+
+                    setOnAction {
+
+                        z_delete = false
+                        z_save = false
+
+                        val list = dataList.filter { ss -> searchString.value.isEmpty() || "${ss.fName} ${ss.lName}".contains(searchString.value, true) }
+
+                        println(dataList.size.toString())
+                        println(list.size.toString())
+                        dataListObservable.clear()
+                        dataListObservable.addAll(list)
+                    }
                 }
             }
 
-            tableview(donorList) {
+            tableview(dataListObservable) {
 
                 maxHeight = 350.00
                 maxWidth = 400.00
@@ -210,12 +247,15 @@ class DonorView : View("My View") {
                     margin = Insets(30.00)
                 }
 
-
-                readonlyColumn("ID", Donor::dnr_id)
                 readonlyColumn("Name", Donor::fName)
                 readonlyColumn("Blood Group", Donor::bloodGroup)
                 readonlyColumn("Mobile No", Donor::mobile)
                 readonlyColumn("Email", Donor::email)
+
+                bindSelected(viewmodel).apply {
+                    z_save = false
+                    z_delete = true
+                }
             }
 
             scrollpane {
@@ -253,8 +293,13 @@ class DonorView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = donor.fName
+                                bind(viewmodel.fname)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
+
                             paddingBottom = 30.00
                         }
 
@@ -262,15 +307,24 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.lName
+                                bind(viewmodel.lName)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Date of Birth:") {
-                            this+= JFXDatePicker().apply {
-                                value = donor.dob
+                            this += JFXDatePicker().apply {
+
+                                bind(viewmodel.dob)
+
+                                validator {
+                                    if (it.toString().isBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -280,7 +334,11 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.mobile
+                                bind(viewmodel.mobile)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -292,8 +350,27 @@ class DonorView : View("My View") {
 
                                 items.add("Male")
                                 items.add("Female")
+                                items.add("Other")
 
-                                value = donor.sex
+                                bind(viewmodel.sex)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
+                            }
+
+                            paddingBottom = 30.00
+                        }
+
+                        field("Email:") {
+                            this += JFXTextField().apply {
+                                focusColor = Styles.accentColor
+
+                                bind(viewmodel.email)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -312,17 +389,11 @@ class DonorView : View("My View") {
                                 items.add("O+")
                                 items.add("O-")
 
-                                value = donor.bloodGroup
-                            }
+                                bind(viewmodel.bloodGroup)
 
-                            paddingBottom = 30.00
-                        }
-
-                        field("Email:") {
-                            this += JFXTextField().apply {
-                                focusColor = Styles.accentColor
-
-                                text = donor.email
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -336,7 +407,12 @@ class DonorView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                text = donor.house
+                                bind(viewmodel.house)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
+
                             }
                             paddingBottom = 30.00
                         }
@@ -345,16 +421,25 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.street
+                                bind(viewmodel.street)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
 
                         field("Area:") {
-                            this+= JFXTextField().apply {
-                                text = donor.area
+                            this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
+
+                                bind(viewmodel.area)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -364,7 +449,11 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.zipCod
+                                bind(viewmodel.zipCod)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -374,7 +463,11 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.city
+                                bind(viewmodel.city)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
@@ -384,21 +477,75 @@ class DonorView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = donor.country
+                                bind(viewmodel.country)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
 
                             paddingBottom = 30.00
                         }
                     }
 
-                    this += JFXButton("Save").apply{
-                        buttonType = JFXButton.ButtonType.RAISED
+                    hbox {
 
-                        style {
-                            backgroundColor = multi(Styles.positiveColor)
-                            textFill = Color.WHITE
+                        alignment = Pos.CENTER
 
-                            fontWeight = FontWeight.BOLD
+                        this += JFXButton("Save").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(viewmodel.valid.and(viewmodel.dirty))
+
+                            style {
+                                backgroundColor = multi(Styles.positiveColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                viewmodel.commit()
+                                val item = viewmodel.item
+
+                                try {
+                                    if(!z_save){
+                                        controller.updateItem(item)
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been saved successfully!")
+                                    } else {
+                                        val newStaff = controller.newItem(item)
+
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "New Staff has been created successfully!")
+
+                                        dataList.add(newStaff)
+                                        dataListObservable.add(newStaff)
+
+                                    }
+                                }catch (ex: Exception){
+                                    alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong!")
+                                }
+                            }
+                        }
+
+                        this += JFXButton("Reset").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(viewmodel.dirty)
+
+                            hboxConstraints {
+                                marginLeft = 50.00
+                            }
+
+                            style {
+                                backgroundColor = multi(Styles.tensionColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                viewmodel.rollback()
+                            }
                         }
                     }
                 }

@@ -16,6 +16,10 @@ class MyApp: App(MainView::class, Styles::class){
     init {
         reloadStylesheetsOnFocus()
         myConnection.connect()
+
+        transaction {
+            SchemaUtils.create (CategoryTable)
+        }
     }
 
     override fun start(stage: Stage) {

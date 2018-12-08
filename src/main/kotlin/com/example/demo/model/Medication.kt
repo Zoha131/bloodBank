@@ -3,7 +3,7 @@ package com.example.demo.model
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-class Medication(val med_id: Int = -1){
+class Medication(var med_id: Int = -1){
     val medNamedProperty = SimpleStringProperty(this, "medNamed", "medNamed")
     var medNamed by medNamedProperty
 

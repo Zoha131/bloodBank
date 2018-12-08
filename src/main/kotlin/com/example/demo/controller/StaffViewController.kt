@@ -17,7 +17,7 @@ import tornadofx.*
 
 class StaffViewController : Controller(){
 
-    fun getStaffSet():ArrayList<Staff> {
+    fun getDataList():ArrayList<Staff> {
 
         val staffList = ArrayList<Staff>()
 
@@ -66,30 +66,7 @@ class StaffViewController : Controller(){
         return  staffList
     }
 
-    /*fun getStaffCatList():ArrayList<StaffCategory> {
-
-        val staffCatList = ArrayList<StaffCategory>()
-
-        transaction {
-            CategoryTable.selectAll().forEach {
-
-                val category = StaffCategory(it[CategoryTable.cat_id])
-
-                category.jobTitle = it[CategoryTable.job_title]
-                category.jobDesc = it[CategoryTable.job_descr]
-                category.eduReq = it[CategoryTable.edu_req]
-                category.expReq = it[CategoryTable.exp_req]
-                category.baseSalary = it[CategoryTable.base_salary]
-
-                staffCatList.add(category)
-                println(category.cat_id)
-            }
-        }
-
-        return staffCatList
-    }*/
-
-    fun updateStaff(staff: Staff){
+    fun updateItem(staff: Staff){
 
         transaction {
             StaffTable.update({StaffTable.staff_id eq staff.staff_id}) {
@@ -123,7 +100,7 @@ class StaffViewController : Controller(){
         }
     }
 
-    fun newStaff(staff: Staff): Staff{
+    fun newItem(staff: Staff): Staff{
 
         transaction {
 
@@ -163,7 +140,9 @@ class StaffViewController : Controller(){
         return staff
     }
 
-    fun deleteStaff(staff: Staff){
+    fun deleteItem(staff: Staff){
+
+        println(staff.staff_id)
 
         transaction {
             StaffTable.deleteWhere { StaffTable.staff_id eq staff.staff_id }
@@ -173,12 +152,26 @@ class StaffViewController : Controller(){
     }
 }
 
-/*val category = StaffCategory(it[StaffTable.cat_id])
 
-                CategoryTable.select{CategoryTable.cat_id eq category.cat_id}.forEach {cat ->
-                    category.jobTitle = cat[CategoryTable.job_title]
-                    category.jobDesc = cat[CategoryTable.job_descr]
-                    category.eduReq = cat[CategoryTable.edu_req]
-                    category.expReq = cat[CategoryTable.exp_req]
-                    category.baseSalary = cat[CategoryTable.base_salary]
-                }*/
+/*fun getDataList():ArrayList<StaffCategory> {
+
+        val staffCatList = ArrayList<StaffCategory>()
+
+        transaction {
+            CategoryTable.selectAll().forEach {
+
+                val category = StaffCategory(it[CategoryTable.cat_id])
+
+                category.jobTitle = it[CategoryTable.job_title]
+                category.jobDesc = it[CategoryTable.job_descr]
+                category.eduReq = it[CategoryTable.edu_req]
+                category.expReq = it[CategoryTable.exp_req]
+                category.baseSalary = it[CategoryTable.base_salary]
+
+                staffCatList.add(category)
+                println(category.cat_id)
+            }
+        }
+
+        return staffCatList
+    }*/

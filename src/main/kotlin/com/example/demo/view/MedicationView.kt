@@ -1,14 +1,19 @@
 package com.example.demo.view
 
 import com.example.demo.app.Styles
+import com.example.demo.controller.MedicationController
 import com.example.demo.model.Donor
 import com.example.demo.model.Medication
+import com.example.demo.model.Staff
+import com.example.demo.viewmodel.MedicationViewModel
 import com.jfoenix.controls.JFXButton
 import com.jfoenix.controls.JFXComboBox
 import com.jfoenix.controls.JFXDatePicker
 import com.jfoenix.controls.JFXTextField
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.control.Alert
 import javafx.scene.control.ScrollPane
 import javafx.scene.effect.DropShadow
 import javafx.scene.image.Image
@@ -19,6 +24,7 @@ import javafx.scene.paint.ImagePattern
 import javafx.scene.text.FontWeight
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.lang.Exception
 
 class MedicationView : View("My View") {
 
@@ -27,26 +33,15 @@ class MedicationView : View("My View") {
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
 
-    //todo me: change this placehodler data
-    private val medicationList = listOf(
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication(),
-            Medication()
-    ).observable()
-    private val medication = Medication()
+    val controller: MedicationController by inject()
+    val viewmodel: MedicationViewModel by inject()
+
+    private val dataList = controller.getDataList()
+    private val dataListObservable = ArrayList(dataList).observable()
+    private val searchString = SimpleStringProperty()
+
+    private var z_save = false
+    private var z_delete = false
 
 
     init {
@@ -93,7 +88,7 @@ class MedicationView : View("My View") {
                 backgroundColor = multi(Styles.windowColor)
             }
 
-            label("MedicalCondition") {
+            label("Medication") {
                 style {
                     fontSize = 18.px
                     backgroundColor = multi(Styles.primaryColor)
@@ -122,13 +117,15 @@ class MedicationView : View("My View") {
                     marginLeft = 50.00
                 }
 
-                label("Search Person for MedicalCondition: ") {  }
+                label("Search Medication: ") {  }
 
                 this += JFXTextField().apply {
                     promptText = "Search"
 
+                    searchString.bindBidirectional(textProperty())
+
                     hboxConstraints {
-                        marginLeft = 20.00
+                        marginLeft = 40.00
                         focusColor = Styles.accentColor
                     }
                 }
@@ -140,6 +137,19 @@ class MedicationView : View("My View") {
 
                         fill = ImagePattern(Image("logo/search.png"))
                     }
+
+                    setOnAction {
+
+                        z_delete = false
+                        z_save = false
+
+                        val list = dataList.filter { ss -> searchString.value.isEmpty() || "${ss.medNamed} ${ss.medDesc}".contains(searchString.value, true) }
+
+                        println(dataList.size.toString())
+                        println(list.size.toString())
+                        dataListObservable.clear()
+                        dataListObservable.addAll(list)
+                    }
                 }
             }
 
@@ -150,14 +160,15 @@ class MedicationView : View("My View") {
                 stackpaneConstraints {
                     alignment = Pos.TOP_LEFT
 
-                    marginTop = 160.00
+                    marginTop = 180.00
+                    marginLeft = 50.00
                 }
 
-                this += JFXButton("Delete MedicalCondition").apply{
+                this += JFXButton("Delete Condition").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
-                        marginLeft = 70.00
+                        marginLeft = 40.00
                     }
 
                     style {
@@ -166,13 +177,33 @@ class MedicationView : View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+
+                        try {
+                            if(z_delete){
+
+                                val staff = viewmodel.item
+                                controller.deleteItem(staff)
+
+                                dataListObservable.remove(staff)
+                                dataList.remove(staff)
+
+                                alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been deleted successfully!")
+                            } else {
+                                alert(Alert.AlertType.INFORMATION, "Error!", "Please Select a data to delete")
+                            }
+                        }catch (ex: Exception){
+                            alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong! ${ex.message}")
+                        }
+                    }
                 }
 
-                this += JFXButton("New MedicalCondition").apply{
+                this += JFXButton("New Condition").apply {
                     buttonType = JFXButton.ButtonType.RAISED
 
                     hboxConstraints {
-                        marginLeft = 60.00
+                        marginLeft = 40.00
                     }
 
                     style {
@@ -181,10 +212,19 @@ class MedicationView : View("My View") {
 
                         fontWeight = FontWeight.BOLD
                     }
+
+                    setOnAction {
+                        z_save = true
+                        z_delete = false
+
+                        viewmodel.rebind {
+                            item = Medication()
+                        }
+                    }
                 }
             }
 
-            tableview(medicationList) {
+            tableview(dataListObservable) {
 
                 maxHeight = 350.00
                 maxWidth = 400.00
@@ -197,10 +237,14 @@ class MedicationView : View("My View") {
                 }
 
 
-                readonlyColumn("ID", Medication::med_id)
                 readonlyColumn("Name", Medication::medNamed)
                 readonlyColumn("Description", Medication::medDesc)
                 readonlyColumn("Guide", Medication::medGuide)
+
+                bindSelected(viewmodel).apply {
+                    z_save = false
+                    z_delete = true
+                }
             }
 
             scrollpane {
@@ -232,14 +276,18 @@ class MedicationView : View("My View") {
                         backgroundColor = multi(Color.WHITE)
                     }
 
-                    fieldset("Medical Condition") {
+                    fieldset("Medication") {
 
                         field("Name:") {
                             this += JFXTextField().apply {
 
                                 focusColor = Styles.accentColor
 
-                                text = medication.medNamed
+                                bind(viewmodel.medName)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
                             }
                             paddingBottom = 30.00
                             paddingTop = 40.00
@@ -249,7 +297,11 @@ class MedicationView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = medication.medDesc
+                                bind(viewmodel.medDesc)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
 
                             }
                             paddingBottom = 30.00
@@ -260,7 +312,11 @@ class MedicationView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                text = medication.medGuide
+                                bind(viewmodel.medGuide)
+
+                                validator {
+                                    if (it.isNullOrBlank()) error("The name field is required") else null
+                                }
 
                             }
                             paddingBottom = 30.00
@@ -269,14 +325,64 @@ class MedicationView : View("My View") {
 
                     }
 
-                    this += JFXButton("Save").apply{
-                        buttonType = JFXButton.ButtonType.RAISED
+                    hbox {
 
-                        style {
-                            backgroundColor = multi(Styles.positiveColor)
-                            textFill = Color.WHITE
+                        alignment = Pos.CENTER
 
-                            fontWeight = FontWeight.BOLD
+                        this += JFXButton("Save").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(viewmodel.valid.and(viewmodel.dirty))
+
+                            style {
+                                backgroundColor = multi(Styles.positiveColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                viewmodel.commit()
+                                val item = viewmodel.item
+
+                                try {
+                                    if(!z_save){
+                                        controller.updateItem(item)
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been saved successfully!")
+                                    } else {
+                                        val newStaff = controller.newItem(item)
+
+                                        alert(Alert.AlertType.INFORMATION, "Confirmation!", "New Staff has been created successfully!")
+
+                                        dataList.add(newStaff)
+                                        dataListObservable.add(newStaff)
+
+                                    }
+                                }catch (ex: Exception){
+                                    alert(Alert.AlertType.INFORMATION, "Error!", "Something went wrong!")
+                                }
+                            }
+                        }
+
+                        this += JFXButton("Reset").apply {
+                            buttonType = JFXButton.ButtonType.RAISED
+
+                            enableWhen(viewmodel.dirty)
+
+                            hboxConstraints {
+                                marginLeft = 50.00
+                            }
+
+                            style {
+                                backgroundColor = multi(Styles.tensionColor)
+                                textFill = Color.WHITE
+
+                                fontWeight = FontWeight.BOLD
+                            }
+
+                            setOnAction {
+                                viewmodel.rollback()
+                            }
                         }
                     }
                 }

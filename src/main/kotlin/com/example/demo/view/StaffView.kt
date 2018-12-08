@@ -2,8 +2,8 @@ package com.example.demo.view
 
 import com.example.demo.app.Styles
 import com.example.demo.controller.StaffViewController
+import com.example.demo.database.MyConnection
 import com.example.demo.model.Staff
-import com.example.demo.model.StaffCategory
 import com.example.demo.viewmodel.StaffViewModel
 import com.jfoenix.controls.*
 import javafx.beans.property.SimpleStringProperty
@@ -29,18 +29,17 @@ class StaffView : View("My View") {
     var openMenuBtn by singleAssign<JFXButton>()
     var closeMenuBtn by singleAssign<JFXButton>()
 
-    val staffViewController: StaffViewController by inject()
-    val staffModel: StaffViewModel by inject()
+    val controller: StaffViewController by inject()
+    val viewmodel: StaffViewModel by inject()
 
-    private val staffList = staffViewController.getStaffSet()
-    private val staffListObservable = ArrayList(staffList).observable()
+    private val dataList = controller.getDataList()
+    private val dataListObservable = ArrayList(dataList).observable()
     private val searchString = SimpleStringProperty()
 
     private var z_save = false
     private var z_delete = false
 
     init {
-
         myListMenu = listmenu(theme = "blue") {
 
             prefWidth = 200.00
@@ -129,11 +128,11 @@ class StaffView : View("My View") {
                         try {
                             if(z_delete){
 
-                                val staff = staffModel.item
-                                staffViewController.deleteStaff(staff)
+                                val staff = viewmodel.item
+                                controller.deleteItem(staff)
 
-                                staffListObservable.remove(staff)
-                                staffList.remove(staff)
+                                dataListObservable.remove(staff)
+                                dataList.remove(staff)
 
                                 alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been deleted successfully!")
                             } else {
@@ -163,7 +162,7 @@ class StaffView : View("My View") {
                         z_save = true
                         z_delete = false
 
-                        staffModel.rebind {
+                        viewmodel.rebind {
                             item = Staff()
                         }
                     }
@@ -193,17 +192,17 @@ class StaffView : View("My View") {
                         z_delete = false
                         z_save = false
 
-                        val list = staffList.filter { ss -> searchString.value.isEmpty() || "${ss.fName} ${ss.lName}".contains(searchString.value, true) }
+                        val list = dataList.filter { ss -> searchString.value.isEmpty() || "${ss.fName} ${ss.lName}".contains(searchString.value, true) }
 
-                        println(staffList.size.toString())
+                        println(dataList.size.toString())
                         println(list.size.toString())
-                        staffListObservable.clear()
-                        staffListObservable.addAll(list)
+                        dataListObservable.clear()
+                        dataListObservable.addAll(list)
                     }
                 }
             }
 
-            tableview(staffListObservable) {
+            tableview(dataListObservable) {
 
                 maxHeight = 400.00
                 maxWidth = 400.00
@@ -221,7 +220,7 @@ class StaffView : View("My View") {
                 readonlyColumn("Sex", Staff::sex)
                 readonlyColumn("Email", Staff::email)
 
-                bindSelected(staffModel).apply {
+                bindSelected(viewmodel).apply {
                     z_save = false
                     z_delete = true
                 }
@@ -262,7 +261,7 @@ class StaffView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.fname)
+                                bind(viewmodel.fname)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -276,7 +275,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.lName)
+                                bind(viewmodel.lName)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -289,7 +288,7 @@ class StaffView : View("My View") {
                         field("Date of Birth:") {
                             this += JFXDatePicker().apply {
 
-                                bind(staffModel.dob)
+                                bind(viewmodel.dob)
 
                                 validator {
                                     if (it.toString().isBlank()) error("The name field is required") else null
@@ -303,7 +302,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.mobile)
+                                bind(viewmodel.mobile)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -321,7 +320,7 @@ class StaffView : View("My View") {
                                 items.add("Female")
                                 items.add("Other")
 
-                                bind(staffModel.sex)
+                                bind(viewmodel.sex)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -335,7 +334,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.email)
+                                bind(viewmodel.email)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -353,7 +352,7 @@ class StaffView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.house)
+                                bind(viewmodel.house)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -367,7 +366,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.street)
+                                bind(viewmodel.street)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -381,7 +380,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.area)
+                                bind(viewmodel.area)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -395,7 +394,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.zipCod)
+                                bind(viewmodel.zipCod)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -409,7 +408,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.city)
+                                bind(viewmodel.city)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -423,7 +422,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.country)
+                                bind(viewmodel.country)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -447,7 +446,7 @@ class StaffView : View("My View") {
                                 items.add(100005)
 
 
-                                bind(staffModel.cat_id)
+                                bind(viewmodel.cat_id)
 
                                 validator {
                                     if (it.toString().isBlank()) error("The name field is required") else null
@@ -462,7 +461,7 @@ class StaffView : View("My View") {
 
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.eduBack)
+                                bind(viewmodel.eduBack)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -475,7 +474,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.expDetails)
+                                bind(viewmodel.expDetails)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -489,7 +488,7 @@ class StaffView : View("My View") {
                             this += JFXTextField().apply {
                                 focusColor = Styles.accentColor
 
-                                bind(staffModel.refDetails)
+                                bind(viewmodel.refDetails)
 
                                 validator {
                                     if (it.isNullOrBlank()) error("The name field is required") else null
@@ -501,7 +500,7 @@ class StaffView : View("My View") {
 
                         field("Joining Date:") {
                             this += JFXDatePicker().apply {
-                                bind(staffModel.joinDate)
+                                bind(viewmodel.joinDate)
 
                                 validator {
                                     if (it.toString().isBlank()) error("The name field is required") else null
@@ -513,7 +512,7 @@ class StaffView : View("My View") {
 
                         field("Resigning Date:") {
                             this += JFXDatePicker().apply {
-                                bind(staffModel.resignDate)
+                                bind(viewmodel.resignDate)
                             }
 
                             paddingBottom = 30.00
@@ -527,7 +526,7 @@ class StaffView : View("My View") {
                         this += JFXButton("Save").apply {
                             buttonType = JFXButton.ButtonType.RAISED
 
-                            enableWhen(staffModel.valid.and(staffModel.dirty))
+                            enableWhen(viewmodel.valid.and(viewmodel.dirty))
 
                             style {
                                 backgroundColor = multi(Styles.positiveColor)
@@ -537,20 +536,20 @@ class StaffView : View("My View") {
                             }
 
                             setOnAction {
-                                staffModel.commit()
-                                val staff = staffModel.item
+                                viewmodel.commit()
+                                val item = viewmodel.item
 
                                 try {
                                     if(!z_save){
-                                        staffViewController.updateStaff(staff)
+                                        controller.updateItem(item)
                                         alert(Alert.AlertType.INFORMATION, "Confirmation!", "Data has been saved successfully!")
                                     } else {
-                                        val newStaff = staffViewController.newStaff(staff)
+                                        val newStaff = controller.newItem(item)
 
                                         alert(Alert.AlertType.INFORMATION, "Confirmation!", "New Staff has been created successfully!")
 
-                                        staffList.add(newStaff)
-                                        staffListObservable.add(newStaff)
+                                        dataList.add(newStaff)
+                                        dataListObservable.add(newStaff)
 
                                     }
                                 }catch (ex: Exception){
@@ -562,7 +561,7 @@ class StaffView : View("My View") {
                         this += JFXButton("Reset").apply {
                             buttonType = JFXButton.ButtonType.RAISED
 
-                            enableWhen(staffModel.dirty)
+                            enableWhen(viewmodel.dirty)
 
                             hboxConstraints {
                                 marginLeft = 50.00
@@ -576,7 +575,7 @@ class StaffView : View("My View") {
                             }
 
                             setOnAction {
-                                staffModel.rollback()
+                                viewmodel.rollback()
                             }
                         }
                     }
