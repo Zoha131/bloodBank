@@ -18,6 +18,8 @@ class MyApp: App(MainView::class, Styles::class){
         myConnection.connect()
     }
 
+    //git hub set up test
+
     override fun start(stage: Stage) {
         stage.initStyle(StageStyle.TRANSPARENT)
         super.start(stage)
